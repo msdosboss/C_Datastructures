@@ -2,6 +2,7 @@
 #define HEAP_H
 
 #include <stdio.h>
+#include <stdlib.h>
 
 void percolate_down(int(*compare)(const void *, const void *), int *heap, int heap_size, int node_index);
 void heapify(int(*compare)(const void *, const void *), int *heap, int heap_size);
