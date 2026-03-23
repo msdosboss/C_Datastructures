@@ -32,8 +32,8 @@ void percolate_down(int(*compare)(const void *, const void *), struct List *list
     int left_node = node_index * 2 + 1;
     int right_node = node_index * 2 + 2;
     if(right_node < list->current_size){
-        if(compare(getAtIndex(list, left_node), getAtIndex(list, node_index)) || compare(getAtIndex(list, right_node), getAtIndex(list, node_index))){
-            if(compare(getAtIndex(list, left_node), getAtIndex(list, right_node))){
+        if(compare(getPtrToIndex(list, left_node), getPtrToIndex(list, node_index)) || compare(getPtrToIndex(list, right_node), getPtrToIndex(list, node_index))){
+            if(compare(getPtrToIndex(list, left_node), getPtrToIndex(list, right_node))){
                 swapElements(list, left_node, node_index);
                 percolate_down(compare, list, left_node);
             }
@@ -45,7 +45,7 @@ void percolate_down(int(*compare)(const void *, const void *), struct List *list
     
     }
     else if(left_node < list->current_size){
-        if(compare(getAtIndex(list, left_node), getAtIndex(list, node_index))){
+        if(compare(getPtrToIndex(list, left_node), getPtrToIndex(list, node_index))){
             swapElements(list, left_node, node_index);
             percolate_down(compare, list, left_node);
         }
@@ -56,13 +56,23 @@ void percolate_down(int(*compare)(const void *, const void *), struct List *list
     }
 }
 
+/*
+// User need to provide mem location for the value being removed
+void *removeHeap(int(*compare)(const void *, const void *), struct List *list, void *return_val){
+    memcpy(return_val, getAtIndex(list, 0), list->stride);
+	swapElements(list, 0, list->current_size - 1);
+    list->current_size--;
+    percolate_down(compare, list, 0);
+	return return_val;
+}
+*/
 
 void percolate_up(int(*compare)(const void *, const void *), struct List *list, int node_index){
     int parent_index = (node_index - 1) / 2;
     if(parent_index < 0){
         return;
     }
-    if(compare(getAtIndex(list, node_index), getAtIndex(list,parent_index))){
+    if(compare(getPtrToIndex(list, node_index), getPtrToIndex(list,parent_index))){
         swapElements(list, node_index, parent_index);
         if(parent_index > 0){
             percolate_up(compare, list, parent_index);
@@ -79,43 +89,89 @@ void insertHeap(int(*compare)(const void *, const void *), struct List *list, vo
 }
 
 
-// User need to provide mem location for the value being removed
-void removeHeap(int(*compare)(const void *, const void *), struct List *list, void *return_val){
-    memcpy(return_val, getAtIndex(list, 0), list->stride);
-    swapElements(list, 0, list->current_size - 1);
-    list->current_size--;
-    percolate_down(compare, list, 0);
-}
-
 int stringCmpWrapper(const void *string1, const void *string2){
     return strcmp((const char *)string1, (const char *)string2) > 0 ? 1 : 0;
 }
 
+void removeHeap(int (*compare)(const void *, const void *), struct List *list, void *return_val)
+{
+	getValueAtIndex(list, 0, return_val);
+	swapElements(list, 0, list->current_size - 1);
+	list->current_size--;
+	percolate_down(compare, list, 0);
+	//printf("%s\n", (char *)return_val);
+}
 
+void removeHeapPointer(int (*compare)(const void *, const void *), struct List *list, void *return_val)
+{
+}
+/*
+	void *tmp = getPtrAtIndex(list, 0);
+	//printf("rHP temp = %s\n", (char *)tmp);
+	memcpy(return_val, &tmp, list->stride);
+	printf("rHP return_val = %s\n", *(char**)return_val);
+	swapElements(list, 0, list->current_size - 1);
+	printf("rHP return_val = %s\n", *(char**)return_val);
+	list->current_size--;
+	percolate_down(compare, list, 0);
+	printf("rHP return_val = %s\n", *(char**)return_val);
+}*/
+
+#define STR_TESTING
 int main(){
     struct List list;
-    #define heap_size 6
+    #define heap_size 7
     const char *strs[heap_size] = {
-        "abc",
-        "xyz",
+        "zzzzzzzxyzasdlfjhaklsdghaljkshglakjhdfklajsdhflkajhsdfjklahdklfajhsdklfjh",
         "orca",
         "silva",
+        "abc",
         "wario",
+		"zzz",
         "aest"
-    
     };
+	uint64_t buf = 0xAAAAAAAA;
+	uint64_t buf1 = 0xAAAAAAAA;
+	uint64_t buf2 = 0xBBBBBBBB;
+	uint64_t buf3 = 0xBBBBBBBB;
+
+	const char *strs2[heap_size] = {
+		"ccc",
+		"ddd",
+		"eee",
+		"fff",
+		"ggg",
+		"hhh",
+		"iii"
+	};
+	const uint64_t ints[heap_size] = {420, 6, 7, 8888, 14, 42, 9999};
+	#ifdef STR_TESTING
     initList(&list, sizeof(char *), NULL, 0, 128);
     for(int i = 0; i < heap_size; ++i){
-        printf("%s\n", strs[i]);
-        push(&list, (void *)strs[i]);
+        push(&list, (void *)&strs[i]);
+        push(&list, (void *)&strs2[i]);
     }
-    heapify(stringCmpWrapper, &list);
-    printf("orca\n");
-    fflush(stdout);
-    const char *val;
+	heapify(stringCmpWrapper, &list);
+    /*for(int i = 0; i < heap_size; ++i){
+        printf("%s\n", (char *)pop(&list));
+    }*/
+    char *val;
     while(list.current_size > 0){
         removeHeap(stringCmpWrapper, &list, (void *)&val);
         printf("%s\n", val);
     }
     return 0;
+	#else
+	initList(&list, sizeof(uint64_t), NULL, 0, 128);
+    for(int i = 0; i < heap_size; ++i){
+        push(&list, (void *)&ints[i]);
+    }
+	heapify(isGreater, &list);
+    int val;
+    while(list.current_size > 0){
+        removeHeap(isGreater, &list, (void *)&val);
+        printf("%d\n", val);
+    }
+    return 0;
+	#endif
 }

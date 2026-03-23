@@ -18,7 +18,8 @@ void cleanList(struct List *list);
 void push(struct List *list, void *value);
 void *pop(struct List *list);
 void insert(struct List *list, void *value, int index);
-void *getAtIndex(struct List *list, int index);
+void getValueAtIndex(struct List *list, int index, void *val);
+void *getPtrToIndex(struct List *list, int index);
 void setAtIndex(struct List *list, int index, void *data);
 void swapElements(struct List *list, int index_1, int index_2);
 

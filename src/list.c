@@ -46,14 +46,23 @@ void *pop(struct List *list){
     return (list->array + --list->current_size * list->stride);
 }
 
-void *getAtIndex(struct List *list, int index){
+//caller must allocate memory in val of sufficient size to store a single list element
+void getValueAtIndex(struct List *list, int index, void *val){
+    if(index >= list->current_size){
+        fprintf(stderr, "tried to get value out of range. Tried %d when list->current_size = %d\n", index, list->current_size);
+        return;
+    }
+	memcpy(val, list->array + index * list->stride, list->stride);
+}
+
+void *getPtrToIndex(struct List *list, int index){
     if(index >= list->current_size){
         printf("tried to get value out of range. Tried %d when list->current_size = %d\n", index, list->current_size);
         return NULL;
     }
-    return (list->array + index * list->stride);
-}
+	return list->array + index * list->stride;
 
+}
 void setAtIndex(struct List *list, int index, void *data){
     if(index >= list->current_size){
         printf("tried to set value out of range\n");
