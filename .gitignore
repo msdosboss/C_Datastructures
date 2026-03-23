@@ -3,3 +3,4 @@
 !.gitignore
 !*.c
 !makefile
+!/src
