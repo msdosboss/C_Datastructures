@@ -1,11 +1,11 @@
-debug: list.c listHeap.c list.h listHeap.h
-	gcc -g -o main list.c listHeap.c
+debug: src/list.c src/listHeap.c src/list.h src/listHeap.h
+	gcc -g -o main src/list.c src/listHeap.c
 
-all: list.o listHeap.o
-	gcc -o main list.o listHeap.o
+all: obj/list.o obj/listHeap.o
+	gcc -o main obj/list.o obj/listHeap.o
 
-list.o: list.c
-	gcc -c -o list.o list.c
+obj/list.o: src/list.c
+	gcc -c -o obj/list.o src/list.c
 
-listHeap.o: listHeap.c
-	gcc -c -o listHeap.o listHeap.c
+obj/listHeap.o: src/listHeap.c
+	gcc -c -o obj/listHeap.o src/listHeap.c
